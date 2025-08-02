@@ -11,7 +11,7 @@ import RPIservo
 import subprocess
 move.setup()
 
-user_home = os.popen('getent passwd %s | cut -d: -f 6'%username).readline().strip()         # home
+user_home = os.path.expanduser('~')  # Get current user's home directory
 
 scGear = RPIservo.ServoCtrl()
 scGear.start()
@@ -26,7 +26,7 @@ class Sherpa_ncnn(threading.Thread):
 
     def run(self):
         try:
-            result = subprocess.run(['sudo', 'python', '/home/' + user_home + '/adeept_picar-b2/web/VoiceIdentify.py'], capture_output=True, text=True)
+            result = subprocess.run(['sudo', 'python', user_home + '/adeept_picar-b2/web/VoiceIdentify.py'], capture_output=True, text=True)
             if result.stdout:
                 print(result.stdout)
             if result.stderr:

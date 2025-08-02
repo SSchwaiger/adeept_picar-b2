@@ -7,7 +7,7 @@ import os
 import time
 
 username = os.popen("echo ${SUDO_USER:-$(who -m | awk '{ print $1 }')}").readline().strip() # pi
-user_home = os.popen('getent passwd %s | cut -d: -f 6'%username).readline().strip()         # home
+user_home = '/home/roboterauto'
  
 curpath = os.path.realpath(__file__)
 thisPath = "/" + os.path.dirname(curpath)
@@ -155,14 +155,14 @@ except:
 
 
 try:
-    os.system("sudo touch /"+ user_home +"/startup.sh")
-    with open("/"+ user_home +"/startup.sh",'w') as file_to_write:
+    os.system("sudo touch "+ user_home +"/startup.sh")
+    with open(user_home +"/startup.sh",'w') as file_to_write:
         #you can choose how to control the robot
         file_to_write.write("#!/bin/sh\nsleep 5\nsudo python3 " + thisPath + "/web/webServer_HAT_V3.1.py")
 except:
     pass
 
-os.system("sudo chmod 777 /"+ user_home +"/startup.sh")
+os.system("sudo chmod 777 "+ user_home +"/startup.sh")
 
 if not os.path.exists("/etc/rc.local"):
     print('/etc/rc.local does not exist. It is required to run the program when the raspberry pi starts. \nHowever it is not required for function. \nWould you like to create a /etc/rc.local/ file (recommended)?')
@@ -172,14 +172,14 @@ if not os.path.exists("/etc/rc.local"):
         os.system("sudo chmod 755 /etc/rc.local")
         try:
             with open("/etc/rc.local", 'w') as file_to_write:
-                file_to_write.write('#!/bin/sh -e\n/' + user_home + '/startup.sh start\nexit 0')
+                file_to_write.write('#!/bin/sh -e\n' + user_home + '/startup.sh start\nexit 0')
         except:
             print('Error: writing /etc/rc.local/ failed.')
     else:
         print("Program setup without /etc/rc.local complete. \nNote: you will have to run startup.sh manually to set servos for mechanical assembly.")
 else: #there is /etc/rc.local
     try:
-        replace_num('/etc/rc.local','fi','fi\n/'+ user_home +'/startup.sh start')
+        replace_num('/etc/rc.local','fi','fi\n'+ user_home +'/startup.sh start')
         print('/etc/rc.local setup complete. After turning the Raspberry Pi on again, the Raspberry Pi will automatically run the program to set the servos port signal to turn the servos to the middle position, which is convenient for mechanical assembly.')
     except:
         print('Error adding to /startup.sh')

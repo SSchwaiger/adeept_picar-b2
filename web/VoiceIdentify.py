@@ -4,7 +4,7 @@
 # Date        : 2025/05/16
 import os
 
-user_home = os.path.expanduser('~')  # Get current user's home directory
+user_home = '/home/roboterauto'
 
 def main():
     # cmd = "sudo  " + user_home +"/sherpa-ncnn/build/bin/sherpa-ncnn-microphone \

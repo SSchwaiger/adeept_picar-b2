@@ -11,7 +11,7 @@ import RPIservo
 import subprocess
 move.setup()
 
-user_home = os.path.expanduser('~')  # Get current user's home directory
+user_home = '/home/roboterauto'
 
 scGear = RPIservo.ServoCtrl()
 scGear.start()

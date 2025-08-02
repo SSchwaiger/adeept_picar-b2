@@ -92,7 +92,7 @@ def ap_thread():
 def functionSelect(command_input, response):
     global functionMode
     if 'scan' == command_input:
-        scGear.moveAngle(2, 0)
+        # scGear.moveAngle(2, 0)
         if modeSelect == 'PT':
             radar_send = fuc.radarScan()
             response['title'] = 'scanResult'

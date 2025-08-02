@@ -441,10 +441,9 @@ if __name__ == '__main__':
         WS2812.led_close()
         pass
 
-    serialPort = serial_port.SerialPortReader()
-    print("Start serial port")
+    serialPort = serial_port.SerialPortReader(WS2812)
+    serialPort.start()
     serialPort.command()
-    print("Started")
 
     RL=robotLight.RobotLight()
 

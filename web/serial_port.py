@@ -1,10 +1,13 @@
 import serial
 import threading
+import time
 
 class SerialPortReader(threading.Thread):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, lights, *args, **kwargs):
 
-        self.port = serial.Serial('dev/ttyACM0',baudrate=9600,timeout=1)
+        self.lights = lights
+
+        self.port = serial.Serial('/dev/ttyACM0',baudrate=9600,timeout=1)
         self.port.reset_input_buffer()
        
         super(SerialPortReader, self).__init__(*args, **kwargs)
@@ -27,6 +30,15 @@ class SerialPortReader(threading.Thread):
             if self.port.in_waiting > 0:
                 line = self.port.readline().decode("utf-8").rstrip()
                 print(line)
+
+                if(line == 'rainbow'):
+                    self.lights.rainbow()
+                elif(line == 'police'):
+                    self.lights.police()
+                elif(line == 'breath'):
+                    self.lights.breath(255, 0, 128)
+            
+            time.sleep(0.03)
 
             if self.commandMode != 'active':
                 break

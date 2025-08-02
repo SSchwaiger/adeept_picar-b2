@@ -152,8 +152,13 @@ def functionSelect(command_input, response):
         WS2812.police()
 
     elif 'policeOff' == command_input:
-        WS2812.breath(70,70,255)
-        move.motorStop()
+        WS2812.breath(255,0,255)
+
+    elif 'rainbow' == command_input:
+        WS2812.rainbow()
+
+    elif 'rainbowOff' == command_input:
+        WS2812.breath(255,0,255)
 
     elif 'speech' == command_input:
         speech.speech()

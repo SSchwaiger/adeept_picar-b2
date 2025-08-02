@@ -428,12 +428,9 @@ if __name__ == '__main__':
     try:
         # global WS2812
         WS2812_mark = 1
-        WS2812 = robotLight.Adeept_SPI_LedPixel(16, 255)
-        if WS2812.check_spi_state() != 0:
-            WS2812.start()
-            WS2812.breath(70,70,255)
-        else:
-            WS2812.led_close()
+        WS2812 = robotLight.RobotWS2812()
+        WS2812.start()
+        WS2812.breath(70,70,255)
     except:
         WS2812.led_close()
         pass

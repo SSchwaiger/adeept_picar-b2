@@ -14,6 +14,7 @@ import RPIservo
 
 import functions
 import robotLight
+import serial_port
 import switch
 import socket
 
@@ -439,6 +440,11 @@ if __name__ == '__main__':
     except:
         WS2812.led_close()
         pass
+
+    serialPort = serial_port.SerialPortReader()
+    print("Start serial port")
+    serialPort.command()
+    print("Started")
 
     RL=robotLight.RobotLight()
 

@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.38154d526f0ed7fca95252c1bc198072.js"
+  "/precache-manifest.1f542c0593dc4feb0244fb5de6eccd8f.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "adeept_bot_controller_web"});

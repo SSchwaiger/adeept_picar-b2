@@ -190,12 +190,12 @@ def robotCtrl(command_input, response):
     if 'forward' == command_input:
         direction_command = 'forward'
         move.move(speed_set, 1, "mid")
-        RL.both_on(0,255,0)
+        RL.both_on(255,0,255)
     
     elif 'backward' == command_input:
         direction_command = 'backward'
         move.move(speed_set, -1, "mid")
-        RL.both_on(255,0,0)
+        RL.both_on(0,0,255)
 
     elif 'DS' in command_input:
         direction_command = 'no'
@@ -210,7 +210,8 @@ def robotCtrl(command_input, response):
 
     elif 'left' == command_input:
         turn_command = 'left'
-        scGear.moveAngle(0, 30)
+        #scGear.moveAngle(0, 30)
+        scGear.singleServo(0, 1, 7)
         # time.sleep(0.15)
         # move.move(30, 1, "mid")
         RL.RGB_left_on(0,255,0)
@@ -218,7 +219,8 @@ def robotCtrl(command_input, response):
 
     elif 'right' == command_input:
         turn_command = 'right'
-        scGear.moveAngle(0,-30)
+        #scGear.moveAngle(0,-30)
+        scGear.singleServo(0, -1, 7)
         # time.sleep(0.15)
         # move.move(30, 1, "mid")
         RL.RGB_right_on(0,255,0)

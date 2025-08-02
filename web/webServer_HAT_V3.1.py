@@ -27,7 +27,7 @@ import Voltage
 import Voice_Command
 import VoiceIdentify
 functionMode = 0
-speed_set = 100
+speed_set = 20
 rad = 0.5
 turnWiggle = 60
 

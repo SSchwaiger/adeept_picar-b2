@@ -78,6 +78,7 @@ void translateIR()
       else
       {
         status = 0;
+        Serial.println("stop");
       }
       break;
   }

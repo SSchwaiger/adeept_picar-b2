@@ -243,13 +243,12 @@ def robotCtrl(command_input, response):
         elif turn_command == 'no':
             RL.both_off()
 
-
     elif 'left' == command_input:
         turn_command = 'left'
         scGear.steerLeft()
         # time.sleep(0.15)
         # move.move(30, 1, "mid")
-        RL.RGB_left_on(0,0,255)
+        RL.RGB_left_on(0, 0, 255)
         time.sleep(0.15)
 
     elif 'right' == command_input:
@@ -257,7 +256,7 @@ def robotCtrl(command_input, response):
         scGear.steerRight()
         # time.sleep(0.15)
         # move.move(30, 1, "mid")
-        RL.RGB_right_on(0,0,255)
+        RL.RGB_right_on(0, 0, 255)
         time.sleep(0.15)
 
     elif 'TS' in command_input:
@@ -457,14 +456,10 @@ if __name__ == '__main__':
     global flask_app
     flask_app = app.webapp()
     flask_app.startthread()
-    
-    # Set motor controller for all modules that need it
 
-    # Play startup sound
     buzzer.play_startup_sound()
 
     try:
-        # global WS2812
         WS2812_mark = 1
         WS2812 = RobotWS2812()
         WS2812.start()
@@ -477,11 +472,11 @@ if __name__ == '__main__':
     serialPort.start()
     serialPort.command()
 
-    RL=robotLight.RobotLight()
+    RL = robotLight.RobotLight()
 
     while  1:
         wifi_check()
-        try:                  #Start server,waiting for client
+        try:
             start_server = websockets.serve(main_logic, '0.0.0.0', 8888)
             asyncio.get_event_loop().run_until_complete(start_server)
             print('waiting for connection...')

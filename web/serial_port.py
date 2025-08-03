@@ -47,17 +47,18 @@ class SerialPortReader(threading.Thread):
                 elif(line == 'breath'):
                     self.lights.breath(255, 0, 128)
                 elif(line == 'left'):
-                    scGear.moveAngle(0, 40)
+                    scGear.steerLeft()
                 elif(line == 'right'):
-                    scGear.moveAngle(0, -40)
+                    scGear.steerRight()
                 elif(line == 'straight'):
-                    scGear.moveAngle(0, 0)
+                    scGear.steerStraight()
                 elif(line == 'forward'):
                     self.motor_ctrl.move(30, 1, "mid")
                 elif(line == 'backward'):
                     self.motor_ctrl.move(30, -1, "mid")
                 elif(line == 'stop'):
                     self.motor_ctrl.motorStop()
+                    scGear.steerStraight()
                 elif(line.startswith('sound')):
                     note = line[5:]
                     self.buzzer.play_note(note, 1.0)
@@ -81,7 +82,6 @@ class SerialPortReader(threading.Thread):
             pass
 
 if __name__ == '__main__':
-    # Test example for WS2812 LED functions
     print("Testing WS2812 LED functionality...")
     
     led = SerialPortReader()

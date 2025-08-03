@@ -3,27 +3,26 @@
 #define IR_RECEIVE_PIN      2
 
 uint32_t last_decodedRawData = 0;
-IRrecv irrecv(IR_RECEIVE_PIN);
 
 void setup() {
   Serial.begin(9600);
-  irrecv.enableIRIn();
+  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
 }
 
 void translateIR() 
 {
-  if (irrecv.decodedIRData.flags)
+  if (IrReceiver.decodedIRData.flags)
   {
     //set the current decodedRawData to the last decodedRawData
-    irrecv.decodedIRData.decodedRawData = last_decodedRawData;
+    IrReceiver.decodedIRData.decodedRawData = last_decodedRawData;
   }
   else
   {
     Serial.print("IR code: 0x");
-    Serial.println(irrecv.decodedIRData.decodedRawData, HEX);
+    Serial.println(IrReceiver.decodedIRData.decodedRawData, HEX);
   }
 
-  switch (irrecv.decodedIRData.decodedRawData)
+  switch (IrReceiver.decodedIRData.decodedRawData)
   {
     case 0xE718FF00:
       Serial.println("straight");
@@ -53,9 +52,9 @@ void translateIR()
 
 void loop()
 {
-  if (irrecv.decode())
+  if (IrReceiver.decode())
   {
     translateIR();
-    irrecv.resume();
+    IrReceiver.resume();
   }
 }

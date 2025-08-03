@@ -21,11 +21,7 @@ except:
     print('OLED disconnected')
     pass
 
-# Buzzer is now handled by RobotBuzzer class
-
-
 average_voltage = 0.0
-
 
 WarningThreshold = 6.3
 # read the ADC value of channel 0
@@ -34,10 +30,6 @@ channel = 0
 R15 = 3000
 R17 = 1000
 DivisionRatio = R17 / (R15 + R17)
-    
-
-
-
 class BatteryLevelMonitor(threading.Thread):
     def __init__(self, buzzer, adc, *args, **kwargs):
         super().__init__()
@@ -76,15 +68,6 @@ class BatteryLevelMonitor(threading.Thread):
 
     def trigger_alarm(self):
         self.buzzer.play_alert_sound()
-        switch.switch(1, 1)
-        switch.switch(2, 1)
-        switch.switch(3, 1)
-        time.sleep(0.5)
-        self.play_note()
-        switch.switch(1, 0)
-        switch.switch(2, 0)
-        switch.switch(3, 0)
-
 
 if __name__ == "__main__":
     monitor = BatteryLevelMonitor()

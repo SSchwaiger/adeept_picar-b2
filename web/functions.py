@@ -4,26 +4,12 @@
 # Author      : Adeept
 # Date        : 2025/05/15
 import time
-from board import SCL, SDA
-from adafruit_motor import servo
-from adafruit_pca9685 import PCA9685
-
 import threading
 import os
 import ultra
 import Kalman_filter
-import RPIservo
 from gpiozero import InputDevice
 
-scGear = RPIservo.ServoCtrl()
-scGear.start()
-
-# Global motor controller instance (set by main application)
-motor_ctrl = None
-
-def set_motor_controller(motor_controller):
-    global motor_ctrl
-    motor_ctrl = motor_controller
 kalman_filter_X =  Kalman_filter.Kalman_filter(0.01,0.1)
 
 
@@ -65,7 +51,12 @@ line_pin_right = 17
 
 
 class Functions(threading.Thread):
-	def __init__(self, *args, **kwargs):
+	def __init__(self, motor_ctrl, scGear, adc, *args, **kwargs):
+
+		self.motor_ctrl = motor_ctrl
+		self.scGear = scGear
+		self.adc = adc
+
 		self.functionMode = 'none'
 		self.steadyGoal = 0
 
@@ -102,12 +93,12 @@ class Functions(threading.Thread):
 		result = []
 
 		pwm0_pos = pwm0_max
-		scGear.moveAngle(1, 0)
+		self.scGear.moveAngle(1, 0)
 		time.sleep(0.8)
 
 		while pwm0_pos>pwm0_min:
 			pwm0_pos-=scan_speed
-			scGear.moveAngle(1, pwm0_pos)
+			self.scGear.moveAngle(1, pwm0_pos)
 			dist = ultra.checkdist()
 			if dist > 200:
 				continue
@@ -115,13 +106,13 @@ class Functions(threading.Thread):
 			result.append([dist, theta])
 			time.sleep(0.02)
 	
-		scGear.moveAngle(1, 0)
+		self.scGear.moveAngle(1, 0)
 		return result
 
 
 	def pause(self):
 		self.functionMode = 'none'
-		motor_ctrl.motorStop()
+		self.motor_ctrl.motorStop()
 		self.__flag.clear()
 
 
@@ -144,37 +135,42 @@ class Functions(threading.Thread):
 		self.resume()
 
 
+	def trackLight(self):
+		self.functionMode = 'trackLight'
+		self.resume()
+
+
 	def trackLineProcessing(self):
 		status_right = track_line_right.value
 		status_middle = track_line_middle.value
 		status_left = track_line_left.value
 		if status_middle == 0:
 			if status_left == 0 and status_right == 1:
-				scGear.moveAngle(0, 25)
-				scGear.moveAngle(2, 0)
+				self.scGear.moveAngle(0, 25)
+				self.scGear.moveAngle(2, 0)
 				time.sleep(0.1)
-				motor_ctrl.move(30,1,"mid")
+				self.motor_ctrl.move(30,1,"mid")
 			elif status_left == 1 and status_right == 0:
-				scGear.moveAngle(0,-25)
-				scGear.moveAngle(2, 0)
+				self.scGear.moveAngle(0,-25)
+				self.scGear.moveAngle(2, 0)
 				time.sleep(0.1)
-				motor_ctrl.move(30,1,"mid")
+				self.motor_ctrl.move(30,1,"mid")
 			else:
-				scGear.moveAngle(0, 0)
-				scGear.moveAngle(2, 0)
-				motor_ctrl.move(30,1,"mid")
+				self.scGear.moveAngle(0, 0)
+				self.scGear.moveAngle(2, 0)
+				self.motor_ctrl.move(30,1,"mid")
 		elif status_left == 0:
-			scGear.moveAngle(0,25)
-			scGear.moveAngle(2,0)
+			self.scGear.moveAngle(0,25)
+			self.scGear.moveAngle(2,0)
 			time.sleep(0.1)
-			motor_ctrl.move(30,1,"mid")
+			self.motor_ctrl.move(30,1,"mid")
 		elif status_right == 0:
-			scGear.moveAngle(0,-25)
-			scGear.moveAngle(2,0)
+			self.scGear.moveAngle(0,-25)
+			self.scGear.moveAngle(2,0)
 			time.sleep(0.1)
-			motor_ctrl.move(30,1,"mid")
+			self.motor_ctrl.move(30,1,"mid")
 		else:
-			motor_ctrl.move(30,1,"no")
+			self.motor_ctrl.move(30,1,"no")
 		print(status_left,status_middle,status_right)
 		time.sleep(0.1)
 
@@ -198,39 +194,39 @@ class Functions(threading.Thread):
 		dist = self.distRedress()
 		print(dist, "cm")
 		if dist >= 50:			# More than 50CM, go straight.
-			scGear.moveAngle(0, 0)
+			self.scGear.moveAngle(0, 0)
 			time.sleep(0.3)
-			motor_ctrl.move(40, 1, "mid")
+			self.motor_ctrl.move(40, 1, "mid")
 			print("Forward")
 		# More than 30cm and less than 50cm, detect the distance between the left and right sides.
 		elif dist > 30 and dist < 50:	
-			motor_ctrl.move(0, 1, "mid")
-			scGear.moveAngle(1, -40)
+			self.motor_ctrl.move(0, 1, "mid")
+			self.scGear.moveAngle(1, -40)
 			time.sleep(0.4)
 			distLeft = self.distRedress()
 			self.scanList[0] = distLeft
 
 			# Go in the direction where the detection distance is greater.
-			scGear.moveAngle(1, 40)
+			self.scGear.moveAngle(1, 40)
 			time.sleep(0.4)
 			distRight = self.distRedress()
 			self.scanList[1] = distRight
 			print(self.scanList)
-			scGear.moveAngle(1, 0)
+			self.scGear.moveAngle(1, 0)
 			if self.scanList[0] >= self.scanList[1]:
-				scGear.moveAngle(0, -30)
+				self.scGear.moveAngle(0, -30)
 				time.sleep(0.3)
-				motor_ctrl.move(40, 1, "left")
+				self.motor_ctrl.move(40, 1, "left")
 				print("Left")
 			else:
-				scGear.moveAngle(0, 30)
+				self.scGear.moveAngle(0, 30)
 				time.sleep(0.3)
-				motor_ctrl.move(40, 1, "right")
+				self.motor_ctrl.move(40, 1, "right")
 				print("Right")
 		else:		# The distance is less than 30cm, back.
-			scGear.moveAngle(0, 0)
+			self.scGear.moveAngle(0, 0)
 			time.sleep(0.3)
-			motor_ctrl.move(40, -1, "mid")
+			self.motor_ctrl.move(40, -1, "mid")
 			print("Back")
 		time.sleep(0.4)	
 		
@@ -244,15 +240,30 @@ class Functions(threading.Thread):
 
 		print('keepDistanceProcessing: ' + str(distanceGet))
 		if distanceGet > 40:
-			motor_ctrl.move(60, 1, "mid")
+			self.motor_ctrl.move(60, 1, "mid")
 		elif distanceGet < 30:
-			motor_ctrl.move(60, -1, "mid")
+			self.motor_ctrl.move(60, -1, "mid")
 		else:
-			motor_ctrl.motorStop()
+			self.motor_ctrl.motorStop()
 		time.sleep(0.3)
+
+
+	def trackLightProcessing(self):
+		light_value = self.adc.analogRead(1)
+		print(f'Light tracking value: {light_value}')
+		
+		if light_value < 100:
+			self.scGear.moveAngle(0, -20)
+			self.motor_ctrl.move(30, 1, "left")
+		elif light_value > 150:
+			self.scGear.moveAngle(0, 20)
+			self.motor_ctrl.move(30, 1, "right")
+		else:
+			self.scGear.moveAngle(0, 0)
+			self.motor_ctrl.move(30, 1, "mid")
+		
+		time.sleep(0.1)
    
-
-
 	def functionGoing(self):
 		if self.functionMode == 'none':
 			self.pause()
@@ -262,6 +273,8 @@ class Functions(threading.Thread):
 			self.trackLineProcessing()
 		elif self.functionMode == 'keepDistance':
 			self.keepDisProcessing()
+		elif self.functionMode == 'trackLight':
+			self.trackLightProcessing()
 
 
 	def run(self):
@@ -272,12 +285,10 @@ class Functions(threading.Thread):
 
 
 if __name__ == '__main__':
-	pass
+	fuc=Functions()
 	try:
-		fuc=Functions()
 		fuc.setup()
 		while True:
 			fuc.keepDisProcessing()
 	except KeyboardInterrupt:
-
-			motor_ctrl.motorStop()
+		fuc.motor_ctrl.motorStop()

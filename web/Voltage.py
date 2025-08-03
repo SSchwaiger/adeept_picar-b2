@@ -8,7 +8,6 @@ import threading
 import statistics
 from collections import deque
 import switch
-import smbus
 
 OLED_connection = 1
 
@@ -37,24 +36,14 @@ R17 = 1000
 DivisionRatio = R17 / (R15 + R17)
     
 
-class ADS7830(object):
-    def __init__(self):
-        self.cmd = 0x84
-        self.bus=smbus.SMBus(1)
-        self.address = 0x48 # 0x48 is the default i2c address for ADS7830 Module.   
-        
-    def analogRead(self, chn): # ADS7830 has 8 ADC input pins, chn:0,1,2,3,4,5,6,7
-        value = self.bus.read_byte_data(self.address, self.cmd|(((chn<<2 | chn>>1)&0x07)<<4))
-        return value
-
 
 
 class BatteryLevelMonitor(threading.Thread):
-    def __init__(self, buzzer, *args, **kwargs):
+    def __init__(self, buzzer, adc, *args, **kwargs):
         super().__init__()
         self.buzzer = buzzer
         self.voltage_data = deque(maxlen=10)
-        self.adc = ADS7830()
+        self.adc = adc
         super(BatteryLevelMonitor, self).__init__(*args, **kwargs)
         self.__flag = threading.Event()
         self.__flag.clear()

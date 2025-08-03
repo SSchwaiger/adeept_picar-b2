@@ -20,7 +20,7 @@ import switch
 import Voice_Command
 import camera_opencv
 import socket
-
+from ADS7830 import ADS7830
 
 import asyncio
 import websockets
@@ -46,6 +46,7 @@ T_sc = RPIservo.ServoCtrl()
 T_sc.start()
 
 buzzer = RobotBuzzer(18)
+adc = ADS7830()
 
 modeSelect = 'PT'
 
@@ -55,22 +56,29 @@ init_pwm2 = scGear.initPos[2]
 init_pwm3 = scGear.initPos[3]
 init_pwm4 = scGear.initPos[4]
 
-fuc = functions.Functions()
-fuc.setup()
-fuc.start()
 sherpa_ncnn = Voice_Command.Sherpa_ncnn()
 sherpa_ncnn.start()
 speech = Voice_Command.Speech()
 speech.start()
 
-batteryMonitor = Voltage.BatteryLevelMonitor(buzzer)
+batteryMonitor = Voltage.BatteryLevelMonitor(buzzer, adc)
 batteryMonitor.start()
+
+motor_ctrl = MotorController()
+motor_ctrl.setup()
+
+Voice_Command.set_motor_controller(motor_ctrl)
+camera_opencv.set_motor_controller(motor_ctrl)
 
 curpath = os.path.realpath(__file__)
 thisPath = "/" + os.path.dirname(curpath)
 
 direction_command = 'no'
 turn_command = 'no'
+
+fuc = functions.Functions(motor_ctrl, scGear, adc)
+fuc.setup()
+fuc.start()
 
 def servoPosInit():
     scGear.initConfig(2,init_pwm2,1)
@@ -151,6 +159,15 @@ def functionSelect(command_input, response):
         fuc.trackLine()
 
     elif 'trackLineOff' == command_input:
+        scGear.moveAngle(0, 0)
+        fuc.pause()
+        motor_ctrl.motorStop()
+
+    elif 'trackLight' == command_input:
+        servoPosInit()
+        fuc.trackLight()
+
+    elif 'trackLightOff' == command_input:
         scGear.moveAngle(0, 0)
         fuc.pause()
         motor_ctrl.motorStop()
@@ -437,19 +454,12 @@ if __name__ == '__main__':
     switch.set_all_switch_off()
     WS2812_mark = None
 
-    global flask_app, motor_ctrl
+    global flask_app
     flask_app = app.webapp()
     flask_app.startthread()
     
-    # Create MotorController instance
-    motor_ctrl = MotorController()
-    motor_ctrl.setup()
-    
     # Set motor controller for all modules that need it
-    Voice_Command.set_motor_controller(motor_ctrl)
-    functions.set_motor_controller(motor_ctrl)
-    camera_opencv.set_motor_controller(motor_ctrl)
-    
+
     # Play startup sound
     buzzer.play_startup_sound()
 

@@ -15,7 +15,7 @@ import RPIservo
 import functions
 import robotLight
 from robotWS2812 import RobotWS2812
-import web.serialPort as serialPort
+import serialPort as serialPort
 import switch
 import Voice_Command
 import camera_opencv

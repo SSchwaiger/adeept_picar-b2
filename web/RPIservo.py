@@ -16,7 +16,7 @@ import random
 # the servo can only use pins 0-8.
 
 
-init_pwm0 = 90
+init_pwm0 = 107 # 90
 init_pwm1 = 90
 init_pwm2 = 90
 init_pwm3 = 90

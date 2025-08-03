@@ -93,6 +93,7 @@ def ap_thread():
 def functionSelect(command_input, response):
     global functionMode
     if 'scan' == command_input:
+        WS2812.led_close()
         # scGear.moveAngle(2, 0)
         if modeSelect == 'PT':
             radar_send = fuc.radarScan()
@@ -218,7 +219,7 @@ def robotCtrl(command_input, response):
         scGear.moveAngle(0, 40)
         # time.sleep(0.15)
         # move.move(30, 1, "mid")
-        RL.RGB_left_on(0,255,0)
+        RL.RGB_left_on(0,0,255)
         time.sleep(0.15)
 
     elif 'right' == command_input:
@@ -226,13 +227,13 @@ def robotCtrl(command_input, response):
         scGear.moveAngle(0,-40)
         # time.sleep(0.15)
         # move.move(30, 1, "mid")
-        RL.RGB_right_on(0,255,0)
+        RL.RGB_right_on(0,0,255)
         time.sleep(0.15)
 
     elif 'TS' in command_input:
-        turn_command = 'no'
+        #turn_command = 'no'
         scGear.moveAngle(0, 0)
-        move.motorStop()
+        #move.motorStop()
         if direction_command == 'forward':
             RL.both_on(0,255,0) # green
         elif direction_command == 'backward':
@@ -240,7 +241,6 @@ def robotCtrl(command_input, response):
             
         elif direction_command == 'no':
             RL.both_off()
-
 
     elif 'lookleft' == command_input:
         P_sc.singleServo(1, 1, 7)
@@ -251,7 +251,6 @@ def robotCtrl(command_input, response):
     elif 'LRstop' in command_input:
         P_sc.stopWiggle()
 
-
     elif 'up' == command_input:
         T_sc.singleServo(2, 1, 7)
 
@@ -260,7 +259,6 @@ def robotCtrl(command_input, response):
 
     elif 'UDstop' in command_input:
         T_sc.stopWiggle()
-
 
     elif 'home' == command_input:
         P_sc.moveServoInit([init_pwm1])

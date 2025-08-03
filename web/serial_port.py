@@ -1,22 +1,30 @@
 import serial
 import threading
 import time
+import RPIservo
+import move
+
+scGear = RPIservo.ServoCtrl()
+scGear.start()
 
 class SerialPortReader(threading.Thread):
     def __init__(self, lights, *args, **kwargs):
 
         self.lights = lights
 
-        self.port = serial.Serial('/dev/ttyACM0',baudrate=9600,timeout=1)
-        self.port.reset_input_buffer()
-       
         super(SerialPortReader, self).__init__(*args, **kwargs)
         self.__flag = threading.Event()
         self.__flag.clear()
 
     def command(self):
-        self.commandMode = 'active'
-        self.resume()
+        try:
+            self.port = serial.Serial('/dev/ttyACM0',baudrate=9600,timeout=1)
+            self.port.reset_input_buffer()
+       
+            self.commandMode = 'active'
+            self.resume()
+        except:
+            print("Serial port is not available")
 
     def pause(self):
         self.commandMode = 'none'
@@ -37,7 +45,19 @@ class SerialPortReader(threading.Thread):
                     self.lights.police()
                 elif(line == 'breath'):
                     self.lights.breath(255, 0, 128)
-            
+                elif(line == 'left'):
+                    scGear.moveAngle(0, 40)
+                elif(line == 'right'):
+                    scGear.moveAngle(0, -40)
+                elif(line == 'straight'):
+                    scGear.moveAngle(0, 0)
+                elif(line == 'forward'):
+                    move.move(30, 1, "mid")
+                elif(line == 'backward'):
+                    move.move(30, -1, "mid")
+                elif(line == 'stop'):
+                    move.motorStop()
+
             time.sleep(0.03)
 
             if self.commandMode != 'active':

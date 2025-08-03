@@ -74,10 +74,12 @@ void translateIR()
       if(status == 1)
       {
         status = 2;
+        Serial.println("unlocked")
       }
       else
       {
         status = 0;
+        Serial.println("locked")
         Serial.println("stop");
       }
       break;

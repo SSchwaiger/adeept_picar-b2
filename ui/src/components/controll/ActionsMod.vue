@@ -16,7 +16,6 @@ export default ({
       [false, 'Auto Matic', 'automatic', '', '', 'automaticOff'],
       [false, 'POLICE LIGHT', 'police', '', '', 'policeOff'],
       [false, 'Rainbow', 'rainbow', '', '', 'rainbowOff'],
-      [false, 'Steady Camera', 'steadyCamera', '', '', 'steadyCameraOff'],
       [false, 'Linie verfolgen', 'trackLine', '', '', 'trackLineOff'],
       [false, 'Licht verfolgen', 'trackLight', '', '', 'trackLightOff'],
       [false, 'Serieller Port', 'serialPort', '', '', 'serialPortOff']

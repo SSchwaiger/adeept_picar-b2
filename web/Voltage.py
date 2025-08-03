@@ -7,7 +7,6 @@ import time
 import threading
 import statistics
 from collections import deque
-from gpiozero import TonalBuzzer
 import switch
 import smbus
 
@@ -24,7 +23,6 @@ except:
     pass
 
 # Initialize buzzer
-buzzer = TonalBuzzer(18)
 SINGLE_NOTE = [("C4", 1)]
 
 
@@ -53,8 +51,9 @@ class ADS7830(object):
 
 
 class BatteryLevelMonitor(threading.Thread):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, buzzer, *args, **kwargs):
         super().__init__()
+        self.buzzer = buzzer
         self.voltage_data = deque(maxlen=10)
         self.adc = ADS7830()
         super(BatteryLevelMonitor, self).__init__(*args, **kwargs)
@@ -89,9 +88,9 @@ class BatteryLevelMonitor(threading.Thread):
 
     def play_note(self):
         for note, duration in SINGLE_NOTE:
-            buzzer.play(note)
+            self.buzzer.play(note)
             time.sleep(float(duration))
-        buzzer.stop()
+        self.buzzer.stop()
 
     def trigger_alarm(self):
         self.play_note()

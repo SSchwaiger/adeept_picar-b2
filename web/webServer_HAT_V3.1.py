@@ -27,6 +27,8 @@ import app
 import Voltage
 import Voice_Command
 import VoiceIdentify
+from gpiozero import TonalBuzzer
+
 functionMode = 0
 speed_set = 20
 rad = 0.5
@@ -41,6 +43,7 @@ P_sc.start()
 T_sc = RPIservo.ServoCtrl()
 T_sc.start()
 
+buzzer = TonalBuzzer(18)
 
 modeSelect = 'PT'
 
@@ -58,7 +61,7 @@ sherpa_ncnn.start()
 speech = Voice_Command.Speech()
 speech.start()
 
-batteryMonitor = Voltage.BatteryLevelMonitor()
+batteryMonitor = Voltage.BatteryLevelMonitor(buzzer)
 batteryMonitor.start()
 
 curpath = os.path.realpath(__file__)
@@ -439,7 +442,7 @@ if __name__ == '__main__':
         WS2812.led_close()
         pass
 
-    serialPort = serial_port.SerialPortReader(WS2812)
+    serialPort = serial_port.SerialPortReader(WS2812, buzzer)
     serialPort.start()
     serialPort.command()
 

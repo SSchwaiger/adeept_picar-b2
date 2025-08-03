@@ -87,6 +87,14 @@ class ServoCtrl(threading.Thread):
         print('resume')
         self.__flag.set()
 
+    def steerRight(self):
+        self.moveAngle(0, 30)
+
+    def steerLeft(self):
+        self.moveAngle(0, -40)
+
+    def steerStraight(self):
+        self.moveAngle(0, -5)
 
     def moveInit(self):
         self.scMode = 'init'

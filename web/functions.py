@@ -255,11 +255,11 @@ class Functions(threading.Thread):
 		self.motor_ctrl.move(30, 1, "mid")
 		
 		if light_value < 110:
-			self.scGear.moveAngle(0, 30)
+			self.scGear.steerRight()
 		elif light_value > 140:
-			self.scGear.moveAngle(0, -30)
+			self.scGear.steerLeft()
 		else:
-			self.scGear.moveAngle(0, 0)
+			self.scGear.steerStraight()
 		
 		time.sleep(0.1)
    

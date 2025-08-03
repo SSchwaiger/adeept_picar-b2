@@ -146,21 +146,21 @@ class Functions(threading.Thread):
 		status_left = track_line_left.value
 		if status_middle == 0:
 			if status_left == 0 and status_right == 1:
-				self.scGear.moveAngle(0, 25)
+				self.scGear.steerLeft()
 				self.scGear.moveAngle(2, 0)
 				time.sleep(0.1)
 				self.motor_ctrl.move(30,1,"mid")
 			elif status_left == 1 and status_right == 0:
-				self.scGear.moveAngle(0,-25)
+				self.scGear.steerRight()
 				self.scGear.moveAngle(2, 0)
 				time.sleep(0.1)
 				self.motor_ctrl.move(30,1,"mid")
 			else:
-				self.scGear.moveAngle(0, 0)
+				self.scGear.steerStraight()
 				self.scGear.moveAngle(2, 0)
 				self.motor_ctrl.move(30,1,"mid")
 		elif status_left == 0:
-			self.scGear.moveAngle(0,25)
+			self.scGear.steerLeft()
 			self.scGear.moveAngle(2,0)
 			time.sleep(0.1)
 			self.motor_ctrl.move(30,1,"mid")
@@ -255,9 +255,9 @@ class Functions(threading.Thread):
 		self.motor_ctrl.move(30, 1, "mid")
 		
 		if light_value < 110:
-			self.scGear.steerRight()
-		elif light_value > 140:
 			self.scGear.steerLeft()
+		elif light_value > 140:
+			self.scGear.steerRight()
 		else:
 			self.scGear.steerStraight()
 		

@@ -5,24 +5,25 @@
 # Date        : 2025/05/15
 import time
 from board import SCL, SDA
-import busio
 from adafruit_motor import servo
 from adafruit_pca9685 import PCA9685
 
 import threading
 import os
-import json
 import ultra
 import Kalman_filter
-import move
 import RPIservo
 from gpiozero import InputDevice
 
 scGear = RPIservo.ServoCtrl()
 scGear.start()
 
+# Global motor controller instance (set by main application)
+motor_ctrl = None
 
-move.setup()
+def set_motor_controller(motor_controller):
+    global motor_ctrl
+    motor_ctrl = motor_controller
 kalman_filter_X =  Kalman_filter.Kalman_filter(0.01,0.1)
 
 
@@ -120,7 +121,7 @@ class Functions(threading.Thread):
 
 	def pause(self):
 		self.functionMode = 'none'
-		move.motorStop()
+		motor_ctrl.motorStop()
 		self.__flag.clear()
 
 
@@ -152,28 +153,28 @@ class Functions(threading.Thread):
 				scGear.moveAngle(0, 25)
 				scGear.moveAngle(2, 0)
 				time.sleep(0.1)
-				move.move(30,1,"mid")
+				motor_ctrl.move(30,1,"mid")
 			elif status_left == 1 and status_right == 0:
 				scGear.moveAngle(0,-25)
 				scGear.moveAngle(2, 0)
 				time.sleep(0.1)
-				move.move(30,1,"mid")
+				motor_ctrl.move(30,1,"mid")
 			else:
 				scGear.moveAngle(0, 0)
 				scGear.moveAngle(2, 0)
-				move.move(30,1,"mid")
+				motor_ctrl.move(30,1,"mid")
 		elif status_left == 0:
 			scGear.moveAngle(0,25)
 			scGear.moveAngle(2,0)
 			time.sleep(0.1)
-			move.move(30,1,"mid")
+			motor_ctrl.move(30,1,"mid")
 		elif status_right == 0:
 			scGear.moveAngle(0,-25)
 			scGear.moveAngle(2,0)
 			time.sleep(0.1)
-			move.move(30,1,"mid")
+			motor_ctrl.move(30,1,"mid")
 		else:
-			move.move(30,1,"no")
+			motor_ctrl.move(30,1,"no")
 		print(status_left,status_middle,status_right)
 		time.sleep(0.1)
 
@@ -199,11 +200,11 @@ class Functions(threading.Thread):
 		if dist >= 50:			# More than 50CM, go straight.
 			scGear.moveAngle(0, 0)
 			time.sleep(0.3)
-			move.move(40, 1, "mid")
+			motor_ctrl.move(40, 1, "mid")
 			print("Forward")
 		# More than 30cm and less than 50cm, detect the distance between the left and right sides.
 		elif dist > 30 and dist < 50:	
-			move.move(0, 1, "mid")
+			motor_ctrl.move(0, 1, "mid")
 			scGear.moveAngle(1, -40)
 			time.sleep(0.4)
 			distLeft = self.distRedress()
@@ -219,17 +220,17 @@ class Functions(threading.Thread):
 			if self.scanList[0] >= self.scanList[1]:
 				scGear.moveAngle(0, -30)
 				time.sleep(0.3)
-				move.move(40, 1, "left")
+				motor_ctrl.move(40, 1, "left")
 				print("Left")
 			else:
 				scGear.moveAngle(0, 30)
 				time.sleep(0.3)
-				move.move(40, 1, "right")
+				motor_ctrl.move(40, 1, "right")
 				print("Right")
 		else:		# The distance is less than 30cm, back.
 			scGear.moveAngle(0, 0)
 			time.sleep(0.3)
-			move.move(40, -1, "mid")
+			motor_ctrl.move(40, -1, "mid")
 			print("Back")
 		time.sleep(0.4)	
 		
@@ -243,11 +244,11 @@ class Functions(threading.Thread):
 
 		print('keepDistanceProcessing: ' + str(distanceGet))
 		if distanceGet > 40:
-			move.move(60, 1, "mid")
+			motor_ctrl.move(60, 1, "mid")
 		elif distanceGet < 30:
-			move.move(60, -1, "mid")
+			motor_ctrl.move(60, -1, "mid")
 		else:
-			move.motorStop()
+			motor_ctrl.motorStop()
 		time.sleep(0.3)
    
 
@@ -279,4 +280,4 @@ if __name__ == '__main__':
 			fuc.keepDisProcessing()
 	except KeyboardInterrupt:
 
-			move.motorStop()
+			motor_ctrl.motorStop()

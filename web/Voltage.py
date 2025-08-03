@@ -22,8 +22,7 @@ except:
     print('OLED disconnected')
     pass
 
-# Initialize buzzer
-SINGLE_NOTE = [("C4", 1)]
+# Buzzer is now handled by RobotBuzzer class
 
 
 average_voltage = 0.0
@@ -86,14 +85,8 @@ class BatteryLevelMonitor(threading.Thread):
 
             time.sleep(0.1)
 
-    def play_note(self):
-        for note, duration in SINGLE_NOTE:
-            self.buzzer.play(note)
-            time.sleep(float(duration))
-        self.buzzer.stop()
-
     def trigger_alarm(self):
-        self.play_note()
+        self.buzzer.play_alert_sound()
         switch.switch(1, 1)
         switch.switch(2, 1)
         switch.switch(3, 1)

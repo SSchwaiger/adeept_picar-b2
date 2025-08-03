@@ -7,15 +7,18 @@
 # Date        : 2025/05/16
 import time
 import threading
-import move
+from move import MotorController
 import os
 import info
 import RPIservo
 
 import functions
 import robotLight
+from robotWS2812 import RobotWS2812
 import serial_port
 import switch
+import Voice_Command
+import camera_opencv
 import socket
 
 
@@ -26,8 +29,7 @@ import json
 import app
 import Voltage
 import Voice_Command
-import VoiceIdentify
-from gpiozero import TonalBuzzer
+from robotBuzzer import RobotBuzzer
 
 functionMode = 0
 speed_set = 20
@@ -43,7 +45,7 @@ P_sc.start()
 T_sc = RPIservo.ServoCtrl()
 T_sc.start()
 
-buzzer = TonalBuzzer(18)
+buzzer = RobotBuzzer(18)
 
 modeSelect = 'PT'
 
@@ -120,7 +122,7 @@ def functionSelect(command_input, response):
         scGear.moveAngle(0, 0)
         scGear.moveAngle(1, 0)
         scGear.moveAngle(2, 0)
-        move.motorStop()
+        motor_ctrl.motorStop()
 
     elif 'KD' == command_input:
         servoPosInit()
@@ -138,11 +140,11 @@ def functionSelect(command_input, response):
 
     elif 'automaticOff' == command_input:
         fuc.pause()
-        move.motorStop()
+        motor_ctrl.motorStop()
         time.sleep(0.2)
         
         scGear.moveAngle(0, 0)
-        move.motorStop()
+        motor_ctrl.motorStop()
 
     elif 'trackLine' == command_input:
         servoPosInit()
@@ -151,7 +153,7 @@ def functionSelect(command_input, response):
     elif 'trackLineOff' == command_input:
         scGear.moveAngle(0, 0)
         fuc.pause()
-        move.motorStop()
+        motor_ctrl.motorStop()
 
     elif 'police' == command_input:
         WS2812.police()
@@ -198,17 +200,17 @@ def robotCtrl(command_input, response):
     global direction_command, turn_command
     if 'forward' == command_input:
         direction_command = 'forward'
-        move.move(speed_set, 1, "mid")
+        motor_ctrl.move(speed_set, 1, "mid")
         RL.both_on(0,255,0)
     
     elif 'backward' == command_input:
         direction_command = 'backward'
-        move.move(speed_set, -1, "mid")
+        motor_ctrl.move(speed_set, -1, "mid")
         RL.both_on(255,0,0)
 
     elif 'DS' in command_input:
         direction_command = 'no'
-        move.motorStop()
+        motor_ctrl.motorStop()
         if turn_command == 'left':
             RL.RGB_left_on(0,255,0)
         elif turn_command == 'right':
@@ -350,8 +352,7 @@ async def check_permit(websocket):
             await websocket.send(response_str)
 
 async def recv_msg(websocket):
-    global speed_set, modeSelect
-    move.setup()
+    global speed_set, modeSelect, motor_ctrl
 
     while True: 
         response = {
@@ -428,21 +429,33 @@ if __name__ == '__main__':
     switch.set_all_switch_off()
     WS2812_mark = None
 
-    global flask_app
+    global flask_app, motor_ctrl
     flask_app = app.webapp()
     flask_app.startthread()
+    
+    # Create MotorController instance
+    motor_ctrl = MotorController()
+    motor_ctrl.setup()
+    
+    # Set motor controller for all modules that need it
+    Voice_Command.set_motor_controller(motor_ctrl)
+    functions.set_motor_controller(motor_ctrl)
+    camera_opencv.set_motor_controller(motor_ctrl)
+    
+    # Play startup sound
+    buzzer.play_startup_sound()
 
     try:
         # global WS2812
         WS2812_mark = 1
-        WS2812 = robotLight.RobotWS2812()
+        WS2812 = RobotWS2812()
         WS2812.start()
         WS2812.breath(70,70,255)
     except:
         WS2812.led_close()
         pass
 
-    serialPort = serial_port.SerialPortReader(WS2812, buzzer)
+    serialPort = serial_port.SerialPortReader(WS2812, buzzer, motor_ctrl)
     serialPort.start()
     serialPort.command()
 
@@ -471,4 +484,4 @@ if __name__ == '__main__':
             WS2812.show()
         else:
             pass
-        move.destroy()
+        motor_ctrl.destroy()

@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 # coding: utf-8
-import os
 import cv2
 from base_camera import BaseCamera
 import RPIservo
 import numpy as np
-import move
 import switch
+
+# Global motor controller instance (set by main application)
+motor_ctrl = None
+
+def set_motor_controller(motor_controller):
+    global motor_ctrl
+    motor_ctrl = motor_controller
 import datetime
 import Kalman_filter
 import PID
@@ -78,7 +83,7 @@ class CVThread(threading.Thread):
 
     scGear = RPIservo.ServoCtrl()
     scGear.moveInit()
-    move.setup()
+    # Motor setup is now handled by set_motor_controller
 
     def __init__(self, *args, **kwargs):
         self.CVThreading = 0
@@ -241,40 +246,40 @@ class CVThread(threading.Thread):
                 tracking_servo_status = 1 #  right. -1/0/1: left/mid/right. In which direction the track may be offset out of the tracking area.
                 if CVRun:
                     CVThread.scGear.moveAngle(0, -30) 
-                    move.video_Tracking_Move(turn_speed, 1) 
+                    motor_ctrl.video_Tracking_Move(turn_speed, 1) 
                 else:
                     CVThread.scGear.moveAngle(0, 0)
-                    move.motorStop() # stop
+                    motor_ctrl.motorStop() # stop
 
             elif posInput < 180: # turnLeft.
                 tracking_servo_status = -1 # left
                 if CVRun:
                     CVThread.scGear.moveAngle(0, 30) 
-                    move.video_Tracking_Move(turn_speed, 1) 
+                    motor_ctrl.video_Tracking_Move(turn_speed, 1) 
                 
                 else:
                     CVThread.scGear.moveAngle(0, 0)
-                    move.motorStop() # stop.
+                    motor_ctrl.motorStop() # stop.
                         
             else:
                 tracking_servo_status = 0 # mid
                 if CVRun:
                     CVThread.scGear.moveAngle(0, 0) 
-                    move.video_Tracking_Move(turn_speed, 1) 
+                    motor_ctrl.video_Tracking_Move(turn_speed, 1) 
 
                 else: 
-                    move.motorStop() # stop
+                    motor_ctrl.motorStop() # stop
                 pass
         
         else: # Tracking color not found.
-            move.motorStop() # stop.
+            motor_ctrl.motorStop() # stop.
             FLCV_Status = -1
             if tracking_servo_status == -1 : # -1/0/1: left/mid/right. rotation left.
                 CVThread.scGear.moveAngle(0, 30) 
-                move.video_Tracking_Move(turn_speed, 1) 
+                motor_ctrl.video_Tracking_Move(turn_speed, 1) 
             elif tracking_servo_status == 1 : # rotation right
                 CVThread.scGear.moveAngle(0, -30) 
-                move.video_Tracking_Move(turn_speed, 1) 
+                motor_ctrl.video_Tracking_Move(turn_speed, 1) 
             else:  # no track ahead. tracking_servo_status==0
                 pass
 

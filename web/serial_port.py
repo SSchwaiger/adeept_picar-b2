@@ -2,16 +2,16 @@ import serial
 import threading
 import time
 import RPIservo
-import move
 
 scGear = RPIservo.ServoCtrl()
 scGear.start()
 
 class SerialPortReader(threading.Thread):
-    def __init__(self, lights, buzzer, *args, **kwargs):
+    def __init__(self, lights, buzzer, motor_ctrl=None, *args, **kwargs):
 
         self.lights = lights
         self.buzzer = buzzer
+        self.motor_ctrl = motor_ctrl
 
         super(SerialPortReader, self).__init__(*args, **kwargs)
         self.__flag = threading.Event()
@@ -53,18 +53,14 @@ class SerialPortReader(threading.Thread):
                 elif(line == 'straight'):
                     scGear.moveAngle(0, 0)
                 elif(line == 'forward'):
-                    move.move(30, 1, "mid")
+                    self.motor_ctrl.move(30, 1, "mid")
                 elif(line == 'backward'):
-                    move.move(30, -1, "mid")
+                    self.motor_ctrl.move(30, -1, "mid")
                 elif(line == 'stop'):
-                    move.motorStop()
+                    self.motor_ctrl.motorStop()
                 elif(line.startswith('sound')):
-                    SINGLE_NOTE = [(line[5:], 1)]
-
-                    for note, duration in SINGLE_NOTE:
-                        self.buzzer.play(note)
-                        time.sleep(float(duration))
-                    self.buzzer.stop()
+                    note = line[5:]
+                    self.buzzer.play_note(note, 1.0)
 
             time.sleep(0.03)
 

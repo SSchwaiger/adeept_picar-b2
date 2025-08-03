@@ -4,12 +4,16 @@
 # Date        : 2025/05/16
 import time
 import os
-import move
 import threading
-import move
 import RPIservo
 import subprocess
-move.setup()
+
+# Global motor controller instance (set by main application)
+motor_ctrl = None
+
+def set_motor_controller(motor_controller):
+    global motor_ctrl
+    motor_ctrl = motor_controller
 
 user_home = '/home/roboterauto'
 
@@ -17,7 +21,6 @@ scGear = RPIservo.ServoCtrl()
 scGear.start()
 scGear.moveInit()
 
-move.setup()
 posUD = 0
 
 class Sherpa_ncnn(threading.Thread):
@@ -113,9 +116,9 @@ class Speech(threading.Thread):
                                 break
                             elif keyword == 'stop':
                                 scGear.moveInit()
-                                move.motorStop()
+                                motor_ctrl.motorStop()
                                 time.sleep(0.3)
-                                move.motorStop()
+                                motor_ctrl.motorStop()
                                 print('Your command is "stop" ')
                                 break
                     self.file_position = file.tell()
@@ -135,4 +138,4 @@ if __name__ == '__main__':
         while True:
             pass
     except KeyboardInterrupt:
-        move.motorStop()
+        motor_ctrl.motorStop()

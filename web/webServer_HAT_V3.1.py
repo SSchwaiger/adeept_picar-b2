@@ -15,7 +15,7 @@ import RPIservo
 import functions
 import robotLight
 from robotWS2812 import RobotWS2812
-import serial_port
+import web.serialPort as serialPort
 import switch
 import Voice_Command
 import camera_opencv
@@ -468,7 +468,7 @@ if __name__ == '__main__':
         WS2812.led_close()
         pass
 
-    serialPort = serial_port.SerialPortReader(WS2812, buzzer, motor_ctrl)
+    serialPort = serialPort.SerialPortReader(WS2812, buzzer, motor_ctrl)
     serialPort.start()
     serialPort.command()
 

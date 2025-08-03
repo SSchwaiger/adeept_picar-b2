@@ -9,6 +9,8 @@ void setup() {
   IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
 }
 
+int status = 0;
+
 void translateIR() 
 {
   if (IrReceiver.decodedIRData.flags)
@@ -25,27 +27,58 @@ void translateIR()
   switch (IrReceiver.decodedIRData.decodedRawData)
   {
     case 0xE718FF00:
-      Serial.println("straight");
-      Serial.println("forward");
+      if(status == 2)
+      {
+        Serial.println("straight");
+        Serial.println("forward");
+      }
       break;
     case 0xAD52FF00:
-      Serial.println("straight");
-      Serial.println("backward");
+      if(status == 2)
+      {
+        Serial.println("straight");
+        Serial.println("backward");
+      }
       break;
     case 0xA55AFF00:
-      Serial.println("right");
+      if(status == 2)
+      {
+        Serial.println("right");
+      }
       break;
     case 0xF708FF00:
-      Serial.println("left");
+      if(status == 2)
+      {
+        Serial.println("left");
+      }
       break;
     case 0xE31CFF00:
       Serial.println("stop");
       break;
     case 0xBA45FF00:
-      Serial.println("rainbow");
+      if(status == 2)
+      {
+        Serial.println("rainbow");
+      }
       break;
     case 0xB946FF00:
-      Serial.println("police");
+      if(status == 2)
+      {
+        Serial.println("police");
+      }
+      break;
+    case 0xF20DFF00:
+      status = 1;
+      break;
+    case 0xE916FF00:
+      if(status == 1)
+      {
+        status = 2;
+      }
+      else
+      {
+        status = 0;
+      }
       break;
   }
 }

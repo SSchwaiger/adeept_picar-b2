@@ -3,9 +3,12 @@ import threading
 import time
 import RPIservo
 import move
+from gpiozero import TonalBuzzer
 
 scGear = RPIservo.ServoCtrl()
 scGear.start()
+
+buzzer = TonalBuzzer(18)
 
 class SerialPortReader(threading.Thread):
     def __init__(self, lights, *args, **kwargs):
@@ -57,6 +60,14 @@ class SerialPortReader(threading.Thread):
                     move.move(30, -1, "mid")
                 elif(line == 'stop'):
                     move.motorStop()
+                elif(line.startswith('sound')):
+                    buzzer = TonalBuzzer(18)
+                    SINGLE_NOTE = [(line[5:], 1)]
+
+                    for note, duration in SINGLE_NOTE:
+                        buzzer.play(note)
+                        time.sleep(float(duration))
+                    buzzer.stop()
 
             time.sleep(0.03)
 
@@ -75,8 +86,6 @@ class SerialPortReader(threading.Thread):
             self.__flag.wait()
             self.commandChange()
             pass
-
-
 
 if __name__ == '__main__':
     # Test example for WS2812 LED functions

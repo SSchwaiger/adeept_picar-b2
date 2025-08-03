@@ -156,6 +156,7 @@ def functionSelect(command_input, response):
 
     elif 'trackLine' == command_input:
         servoPosInit()
+        WS2812.led_close()
         fuc.trackLine()
 
     elif 'trackLineOff' == command_input:
@@ -165,6 +166,7 @@ def functionSelect(command_input, response):
 
     elif 'trackLight' == command_input:
         servoPosInit()
+        WS2812.led_close()
         fuc.trackLight()
 
     elif 'trackLightOff' == command_input:

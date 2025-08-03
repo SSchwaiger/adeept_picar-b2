@@ -201,13 +201,13 @@ class Functions(threading.Thread):
 		# More than 30cm and less than 50cm, detect the distance between the left and right sides.
 		elif dist > 30 and dist < 50:	
 			self.motor_ctrl.move(0, 1, "mid")
-			self.scGear.moveAngle(1, -40)
+			self.scGear.moveAngle(1, -30)
 			time.sleep(0.4)
 			distLeft = self.distRedress()
 			self.scanList[0] = distLeft
 
 			# Go in the direction where the detection distance is greater.
-			self.scGear.moveAngle(1, 40)
+			self.scGear.moveAngle(1, 30)
 			time.sleep(0.4)
 			distRight = self.distRedress()
 			self.scanList[1] = distRight
@@ -255,9 +255,9 @@ class Functions(threading.Thread):
 		self.motor_ctrl.move(30, 1, "mid")
 		
 		if light_value < 110:
-			self.scGear.moveAngle(0, 40)
+			self.scGear.moveAngle(0, 30)
 		elif light_value > 140:
-			self.scGear.moveAngle(0, -40)
+			self.scGear.moveAngle(0, -30)
 		else:
 			self.scGear.moveAngle(0, 0)
 		

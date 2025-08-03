@@ -246,8 +246,7 @@ def robotCtrl(command_input, response):
 
     elif 'left' == command_input:
         turn_command = 'left'
-        scGear.moveAngle(0, 40)
-        scGear.moveAngle(3, 40)
+        scGear.moveAngle(0, 30)
         # time.sleep(0.15)
         # move.move(30, 1, "mid")
         RL.RGB_left_on(0,0,255)
@@ -255,8 +254,7 @@ def robotCtrl(command_input, response):
 
     elif 'right' == command_input:
         turn_command = 'right'
-        scGear.moveAngle(0,-40)
-        scGear.moveAngle(3,-40)
+        scGear.moveAngle(0,-30)
         # time.sleep(0.15)
         # move.move(30, 1, "mid")
         RL.RGB_right_on(0,0,255)

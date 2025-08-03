@@ -251,16 +251,15 @@ class Functions(threading.Thread):
 	def trackLightProcessing(self):
 		light_value = self.adc.analogRead(1)
 		print(f'Light tracking value: {light_value}')
+
+		self.motor_ctrl.move(30, 1, "mid")
 		
-		if light_value < 100:
-			self.scGear.moveAngle(0, -20)
-			self.motor_ctrl.move(30, 1, "left")
-		elif light_value > 150:
-			self.scGear.moveAngle(0, 20)
-			self.motor_ctrl.move(30, 1, "right")
+		if light_value < 110:
+			self.scGear.moveAngle(0, 40)
+		elif light_value > 140:
+			self.scGear.moveAngle(0, -40)
 		else:
 			self.scGear.moveAngle(0, 0)
-			self.motor_ctrl.move(30, 1, "mid")
 		
 		time.sleep(0.1)
    

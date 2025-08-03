@@ -167,6 +167,12 @@ def functionSelect(command_input, response):
     elif 'rainbowOff' == command_input:
         WS2812.breath(255,0,255)
 
+    elif 'serialPort' == command_input:
+        serialPort.command()
+
+    elif 'serialPortOff' == command_input:
+        serialPort.pause()
+
     elif 'speech' == command_input:
         speech.speech()
         pass

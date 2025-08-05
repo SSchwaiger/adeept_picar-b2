@@ -69,7 +69,7 @@ class webapp:
         camera.colorFindSet(H, S, V)
 
     def thread(self):
-        app.run(host='0.0.0.0', port=5000,threaded=True)
+        app.run(host='0.0.0.0', port=4444,threaded=True)
 
     def startthread(self):
         fps_threading=threading.Thread(target=self.thread)         #Define a thread for FPV and OpenCV

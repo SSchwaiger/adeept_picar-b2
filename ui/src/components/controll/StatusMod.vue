@@ -25,7 +25,8 @@ export default ({
     chips: [
       ['CPU', 'Temp', 50, '°C', 55, 70],
       ['CPU', 'Usage', 75, '%', 70, 85],
-      ['RAM', 'Usage', 90, '%', 70, 85]
+      ['RAM', 'Usage', 90, '%', 70, 85],
+      ['Battery', 'Voltage', 7.2, 'V', 6.5, 6.0]
     ],
     infoInterval: null
   }),
@@ -50,7 +51,7 @@ export default ({
       if (this.wsResponse.title === 'get_info') {
         const data = this.wsResponse.data
         console.log(data)
-        for (let i = 0; i < this.chips.length; i++) {
+        for (let i = 0; i < this.chips.length && i < data.length; i++) {
           this.$set(this.chips[i], 2, data[i])
         }
       }

@@ -86,10 +86,10 @@ class MotorController:
         elif channel == 4:
             self.motor4.throttle = speed
     
-    def move(self, speed, direction, turn, radius=0.6):   # 0 < radius <= 1  
-        #eg: move(100, 1, "no")--->forward
-        #    move(100, 1, "left")---> left forward
-        #speed:0~100. direction:1/-1. turn: "left", "right", "no".
+    def move(self, speed, direction):
+        #eg: move(100, 1)--->forward
+        #    move(100, -1)---> backward
+        #speed:0~100. direction:1/-1.
         if speed == 0:
             self.motorStop() #all motor stop.
         else:
@@ -132,8 +132,8 @@ def motorStop():
 def Motor(channel,direction,motor_speed):
     return _motor_controller.Motor(channel,direction,motor_speed)
 
-def move(speed, direction, turn, radius=0.6):
-    return _motor_controller.move(speed, direction, turn, radius)
+def move(speed, direction):
+    return _motor_controller.move(speed, direction)
 
 def video_Tracking_Move(speed, direction):
     return _motor_controller.video_Tracking_Move(speed, direction)
@@ -145,11 +145,11 @@ if __name__ == '__main__':
     try:
         speed_set = 20
         setup()
-        move(speed_set, -1, 'no', 0.8)
+        move(speed_set, -1)
         time.sleep(3)
         motorStop()
         time.sleep(1)
-        move(speed_set, 1, 'no', 0.8)
+        move(speed_set, 1)
         time.sleep(3)
         motorStop()
     except KeyboardInterrupt:

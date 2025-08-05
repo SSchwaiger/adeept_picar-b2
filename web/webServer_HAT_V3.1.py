@@ -30,6 +30,7 @@ import app
 import Voltage
 import Voice_Command
 from robotBuzzer import RobotBuzzer
+from flask import Flask, jsonify, request
 
 functionMode = 0
 speed_set = 20
@@ -107,7 +108,6 @@ def functionSelect(command_input, response):
     global functionMode
     if 'scan' == command_input:
         WS2812.led_close()
-        # scGear.moveAngle(2, 0)
         if modeSelect == 'PT':
             radar_send = fuc.radarScan()
             response['title'] = 'scanResult'
@@ -136,7 +136,6 @@ def functionSelect(command_input, response):
         servoPosInit()
         fuc.keepDistance()
     
-
     elif 'automatic' == command_input:
         if modeSelect == 'PT':
             scGear.moveAngle(0, 0)
@@ -221,16 +220,16 @@ def switchCtrl(command_input, response):
         switch.switch(3,0) 
 
 
-def robotCtrl(command_input, response):
+def motorCtrl(command_input, response):
     global direction_command, turn_command
     if 'forward' == command_input:
         direction_command = 'forward'
-        motor_ctrl.move(speed_set, 1, "mid")
+        motor_ctrl.move(speed_set, 1)
         RL.both_on(0,255,0)
     
     elif 'backward' == command_input:
         direction_command = 'backward'
-        motor_ctrl.move(speed_set, -1, "mid")
+        motor_ctrl.move(speed_set, -1)
         RL.both_on(255,0,0)
 
     elif 'DS' in command_input:
@@ -362,6 +361,82 @@ def wifi_check():
         ap_threading=threading.Thread(target=ap_thread)   #Define a thread for data receiving
         ap_threading.setDaemon(True)                          #'True' means it is a front thread,it would close when the mainloop() closes
         ap_threading.start()                                  #Thread starts
+
+def setup_rest_api(flask_app):
+    """Setup REST API endpoints for robot actions"""
+    
+    @flask_app.route('/api/action/<action>', methods=['POST'])
+    def execute_action(action):
+        response = {
+            'status' : 'ok',
+            'title' : '',
+            'data' : None
+        }
+        
+        try:
+            # Call the same functions used by WebSocket
+            functionSelect(action, response)
+            return jsonify({'success': True, 'message': f'Action {action} executed', 'response': response})
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)}), 500
+    
+    @flask_app.route('/api/robot/<command>', methods=['POST'])
+    def robot_control(command):
+        response = {
+            'status' : 'ok',
+            'title' : '',
+            'data' : None
+        }
+        
+        try:
+            motorCtrl(command, response)
+            return jsonify({'success': True, 'message': f'Robot command {command} executed', 'response': response})
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)}), 500
+    
+    
+    
+    @flask_app.route('/api/info', methods=['GET'])
+    def get_system_info():
+        try:
+            info_data = [info.get_cpu_tempfunc(), info.get_cpu_use(), info.get_ram_info(), Voltage.average_voltage]
+            return jsonify({'success': True, 'data': info_data})
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)}), 500
+    
+    @flask_app.route('/api/speed', methods=['POST'])
+    def set_speed():
+        global speed_set
+        try:
+            data = request.get_json()
+            if data and 'speed' in data:
+                speed_set = int(data['speed'])
+                return jsonify({'success': True, 'message': f'Speed set to {speed_set}'})
+            else:
+                return jsonify({'success': False, 'error': 'Speed parameter required'}), 400
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)}), 500
+    
+    @flask_app.route('/api/actions', methods=['GET'])
+    def list_actions():
+        """List all available actions"""
+        actions = [
+            'rainbow', 'rainbowOff', 'police', 'policeOff',
+            'trackLine', 'trackLineOff', 'trackLight', 'trackLightOff',
+            'automatic', 'automaticOff', 'KD', 'scan',
+            'findColor', 'motionGet', 'stopCV', 'serialPort', 'serialPortOff',
+            'speech', 'speechOff'
+        ]
+        robot_commands = [
+            'forward', 'backward', 'DS', 'left', 'right', 'TS',
+            'lookleft', 'lookright', 'LRstop', 'up', 'down', 'UDstop', 'home'
+        ]
+        
+        return jsonify({
+            'success': True,
+            'actions': actions,
+            'robot_commands': robot_commands
+        })
     
 async def check_permit(websocket):
     while True:
@@ -396,7 +471,7 @@ async def recv_msg(websocket):
             continue
 
         if isinstance(data,str):
-            robotCtrl(data, response)
+            motorCtrl(data, response)
 
             switchCtrl(data, response)
 
@@ -406,7 +481,7 @@ async def recv_msg(websocket):
 
             if 'get_info' == data:
                 response['title'] = 'get_info'
-                response['data'] = [info.get_cpu_tempfunc(), info.get_cpu_use(), info.get_ram_info()]
+                response['data'] = [info.get_cpu_tempfunc(), info.get_cpu_use(), info.get_ram_info(), Voltage.average_voltage]
 
             if 'wsB' in data:
                 try:
@@ -455,6 +530,10 @@ if __name__ == '__main__':
 
     global flask_app
     flask_app = app.webapp()
+    
+    # Setup REST API endpoints
+    setup_rest_api(app.app)
+    
     flask_app.startthread()
 
     buzzer.play_startup_sound()

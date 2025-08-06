@@ -23,10 +23,10 @@ export default ({
   },
   data: () => ({
     chips: [
-      ['CPU', 'Temp', 50, '°C', 55, 70],
-      ['CPU', 'Usage', 75, '%', 70, 85],
-      ['RAM', 'Usage', 90, '%', 70, 85],
-      ['Battery', 'Voltage', 7.2, 'V', 6.5, 6.0]
+      ['CPU', 'Temp.', 50, '°C', 55, 70],
+      ['CPU', 'Auslast.', 75, '%', 70, 85],
+      ['RAM', 'Auslast.', 90, '%', 70, 85],
+      ['Batt.', 'Span.', 7.4, 'V', 6.5, 6.0]
     ],
     infoInterval: null
   }),

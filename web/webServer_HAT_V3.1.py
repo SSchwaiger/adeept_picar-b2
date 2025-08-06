@@ -481,7 +481,7 @@ async def recv_msg(websocket):
 
             if 'get_info' == data:
                 response['title'] = 'get_info'
-                response['data'] = [info.get_cpu_tempfunc(), info.get_cpu_use(), info.get_ram_info(), Voltage.average_voltage]
+                response['data'] = [info.get_cpu_tempfunc(), info.get_cpu_use(), info.get_ram_info(), round(Voltage.average_voltage, 1)]
 
             if 'wsB' in data:
                 try:
